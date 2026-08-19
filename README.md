@@ -1,7 +1,6 @@
 # Anup Chopde — Portfolio
 
 Personal portfolio website built with React + Vite + Tailwind CSS.
-This is a plain JavaScript (JSX) project — no TypeScript required.
 
 ## Tech Stack
 
@@ -59,9 +58,3 @@ src/
 ├── index.css
 └── main.jsx
 ```
-
-## Customization
-
-- **Personal info**: Edit files in `src/components/sections/`
-- **Colors/theme**: Edit CSS variables in `src/index.css`
-- **Contact email**: Search for `anupchopde06@gmail.com` and replace
