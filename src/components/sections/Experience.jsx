@@ -260,14 +260,15 @@ export default function Experience() {
                                       duration: 0.4,
                                       delay: pIndex * 0.12,
                                     }}
-                                    whileHover={{ scale: 1.015 }}
-                                    className="relative overflow-hidden rounded-2xl border bg-card/70 p-5 transition-all duration-300 hover:border-primary/40 hover:bg-primary/[0.03]"
-                                  >
-                                    <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-primary/10" onClick={() => {
+                                    onClick={() => {
                                       if (project.name.includes('Pure')) {
                                         window.open('https://pureyou.jewelry/', '_blank', 'noopener,noreferrer');
                                       }
-                                    }} />
+                                    }}
+                                    whileHover={{ scale: 1.015 }}
+                                    className="relative overflow-hidden rounded-2xl border bg-card/70 p-5 transition-all duration-300 hover:border-primary/40 hover:bg-primary/[0.03]"
+                                  >
+                                    <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-primary/10"  />
 
                                     <div className="relative">
                                       <div className="mb-3 flex items-start justify-between gap-4">
@@ -276,11 +277,7 @@ export default function Experience() {
                                         </h4>
 
                                         <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-all group-hover:text-primary"
-                                          onClick={() => {
-                                            if (project.name.includes('Pure')) {
-                                              window.open('https://pureyou.jewelry/', '_blank', 'noopener,noreferrer');
-                                            }
-                                          }} />
+                                          />
                                       </div>
 
                                       <p className="mb-4 text-sm leading-relaxed text-muted-foreground">

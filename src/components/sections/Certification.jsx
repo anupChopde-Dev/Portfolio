@@ -45,9 +45,9 @@ const Certification = () => {
       icon: <GraduationCap className="h-6 w-6" />,
     },
     {
-      title: "React (Basic) Certificate",
+      title: "Frontend Developer Certificate",
       issuer: "HackerRank",
-      date: "2023",
+      date: "2026",
       type: "Online",
       credentialUrl: "https://www.hackerrank.com/certificates/iframe/186626c0455a",
       icon: <Award className="h-6 w-6" />,
@@ -55,7 +55,7 @@ const Certification = () => {
     {
       title: "SQL (Basic) Certificate",
       issuer: "HackerRank",
-      date: "2023",
+      date: "2026",
       type: "Online",
       credentialUrl: "https://www.hackerrank.com/certificates/iframe/c3cbb2a363f8",
       icon: <Award className="h-6 w-6" />,
