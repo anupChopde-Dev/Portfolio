@@ -244,7 +244,7 @@ const Certification = () => {
                     </div>
                   </div>
 
-                  {cert.imageUrl && (
+                  {/* {cert.imageUrl && (
                     <div className="mt-4 overflow-hidden rounded-xl border border-border/50 bg-muted/30">
                       <img 
                         src={cert.imageUrl} 
@@ -253,7 +253,7 @@ const Certification = () => {
                         onError={(e) => { e.target.style.display = 'none'; }} 
                       />
                     </div>
-                  )}
+                  )} */}
                 </motion.div>
               ))}
             </div>
