@@ -22,7 +22,8 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-hidden">
+    // bg-background <= add this class to the div if need to use black bg in hero section
+    <div className="min-h-screen  text-foreground flex flex-col font-sans overflow-hidden">
       <Navbar />
 
       <main className="flex-1">

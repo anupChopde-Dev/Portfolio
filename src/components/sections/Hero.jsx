@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,171 @@ import {
   Download,
   Github
 } from "lucide-react";
+
+function NetworkBackground() {
+  const canvasRef = useRef(null);
+  const mouse = useRef({ x: -9999, y: -9999 });
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    let width = 0;
+    let height = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let particles = [];
+
+    const readThemeColor = (cssVar, fallback) => {
+      const raw = getComputedStyle(document.documentElement)
+        .getPropertyValue(cssVar)
+        .trim();
+      return raw ? `hsl(${raw})` : fallback;
+    };
+
+    const getColors = () => ({
+      primary: readThemeColor("--primary", "hsl(250 84% 60%)"),
+      foreground: readThemeColor("--foreground", "hsl(240 10% 4%)"),
+    });
+
+    let colors = getColors();
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const density = Math.min(90, Math.floor((width * height) / 16000));
+      particles = Array.from({ length: density }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        r: Math.random() * 1.6 + 0.6,
+      }));
+    };
+
+    const step = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const linkDist = Math.min(140, Math.max(90, width / 10));
+      const mouseDist = 170;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        if (!prefersReducedMotion) {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+
+          const dx = mouse.current.x - p.x;
+          const dy = mouse.current.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d < mouseDist) {
+            const pull = (1 - d / mouseDist) * 0.02;
+            p.vx += dx * pull * 0.02;
+            p.vy += dy * pull * 0.02;
+          }
+          const speed = Math.hypot(p.vx, p.vy);
+          const maxSpeed = 0.6;
+          if (speed > maxSpeed) {
+            p.vx = (p.vx / speed) * maxSpeed;
+            p.vy = (p.vy / speed) * maxSpeed;
+          }
+        }
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const q = particles[j];
+          const dx = p.x - q.x;
+          const dy = p.y - q.y;
+          const d = Math.hypot(dx, dy);
+          if (d < linkDist) {
+            ctx.globalAlpha = (1 - d / linkDist) * 0.75;
+            ctx.strokeStyle = colors.foreground;
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+
+        const dMouse = Math.hypot(mouse.current.x - p.x, mouse.current.y - p.y);
+        if (dMouse < mouseDist) {
+          ctx.globalAlpha = (1 - dMouse / mouseDist) * 0.85;
+          ctx.strokeStyle = colors.foreground;
+          ctx.lineWidth = 1.3;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.current.x, mouse.current.y);
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = colors.foreground;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    const handlePointerMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.current.x = e.clientX - rect.left;
+      mouse.current.y = e.clientY - rect.top;
+    };
+
+    const handlePointerLeave = () => {
+      mouse.current.x = -9999;
+      mouse.current.y = -9999;
+    };
+
+    const themeObserver = new MutationObserver(() => {
+      colors = getColors();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme"],
+    });
+
+    resize();
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerleave", handlePointerLeave);
+    rafRef.current = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", handlePointerLeave);
+      themeObserver.disconnect();
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
+      aria-hidden="true"
+    />
+  );
+}
 
 export default function Hero() {
   const roles = [
@@ -53,6 +218,9 @@ export default function Hero() {
     >
       {/* Grid Background */}
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:70px_70px] opacity-[0.12]" />
+
+      {/* Interactive node-network canvas — theme aware, reacts to mouse move */}
+      <NetworkBackground />
 
       {/* Glow Background */}
       <motion.div
